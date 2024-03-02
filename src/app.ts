@@ -1,7 +1,12 @@
-import express from 'express';
+import express, {
+  Request, Response, NextFunction,
+} from 'express';
 import mongoose from 'mongoose';
+import { IError } from './errors/not-found-err';
 import userRouter from './routes/users';
 import cardRouter from './routes/cards';
+
+const { errors } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -17,8 +22,18 @@ app.use((req, res, next) => {
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
+// Роуты
 app.use('/', cardRouter);
 app.use('/', userRouter);
+
+// Миддлвары ошибок
+app.use(errors());
+
+app.use((err: IError, req: Request, res: Response, next: NextFunction): void => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
+  next();
+});
 
 app.listen(PORT, () => {
   console.log(`Mesto API is listening! on port - ${PORT}`);
