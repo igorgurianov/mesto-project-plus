@@ -4,10 +4,10 @@ import { cardFullSchema, cardIdSchema } from '../utils/celebrate-schemas/cards';
 
 const cardRouter = Router();
 
-cardRouter.get('/cards', cardController.getCards);
-cardRouter.post('/cards', cardFullSchema, cardController.postCard);
-cardRouter.delete('/cards/:cardId', cardIdSchema, cardController.deleteCard);
-cardRouter.put('/cards/:cardId/likes', cardIdSchema, cardController.putLike);
-cardRouter.delete('/cards/:cardId/likes', cardIdSchema, cardController.deleteLike);
+cardRouter.get('/', cardController.getCards);
+cardRouter.post('/', cardFullSchema, cardController.postCard);
+cardRouter.delete('/:cardId', cardController.deleteCard);
+cardRouter.put('/:cardId/likes', cardIdSchema, cardController.putLike);
+cardRouter.delete('/:cardId/likes', cardIdSchema, cardController.deleteLike);
 
 export default cardRouter;

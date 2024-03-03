@@ -21,12 +21,12 @@ const cardSchema = new mongoose.Schema<ICard>({
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'user',
     required: true,
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'user',
   }],
   createdAt: {
     type: Date,
@@ -34,4 +34,4 @@ const cardSchema = new mongoose.Schema<ICard>({
   },
 });
 
-export default mongoose.model<ICard>('Card', cardSchema);
+export default mongoose.model<ICard>('card', cardSchema);

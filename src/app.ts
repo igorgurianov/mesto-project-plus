@@ -2,10 +2,10 @@ import express, {
   Request, Response, NextFunction,
 } from 'express';
 import mongoose from 'mongoose';
+import errorHandler, { IError } from './errors';
+import router from './routes';
+import { HTTP_STATUS_NOT_FOUND } from './utils/responseCodes';
 import celebrateErrorHandler from './errors/celebrate-err';
-import { IError } from './errors/not-found-err';
-import userRouter from './routes/users';
-import cardRouter from './routes/cards';
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -22,18 +22,21 @@ app.use((req, res, next) => {
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 // Роуты
-app.use('/', cardRouter);
-app.use('/', userRouter);
+app.use('/', router);
+
+app.use((req, res, next) => {
+  res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Страница не найдена' });
+  next();
+});
 
 // Миддлвары ошибок
-// app.use(errors());
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   celebrateErrorHandler(err, req, res, next);
 });
 
 app.use((err: IError, req: Request, res: Response, next: NextFunction): void => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
+  const { message, statusCode } = errorHandler(err);
+  res.status(statusCode).send({ message });
   next();
 });
 

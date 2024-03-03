@@ -8,18 +8,18 @@ import {
 
 const router = Router();
 
-router.get('/users', getAllUsers);
+router.get('/', getAllUsers);
 
-router.get('/users/:userId', userIdSchema, getUserById);
+router.get('/:userId', userIdSchema, getUserById);
 
 router.post(
-  '/users',
+  '/',
   userAllDataSchema,
   createUser,
 );
 
-router.patch('/users/me', userNameAboutSchema, updateProfile);
+router.patch('/me', userNameAboutSchema, updateProfile);
 
-router.patch('/users/me/avatar', userAvatarSchema, updateAvatar);
+router.patch('/me/avatar', userAvatarSchema, updateAvatar);
 
 export default router;
