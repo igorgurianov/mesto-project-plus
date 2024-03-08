@@ -8,9 +8,11 @@ export const userIdSchema = celebrate({
 
 export const userAllDataSchema = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(200),
-    avatar: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(200),
+    avatar: Joi.string(),
+    password: Joi.string().required(),
+    email: Joi.string().required().email(),
   }),
 });
 

@@ -1,10 +1,15 @@
 import mongoose from 'mongoose';
 
-import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_INTERNAL_SERVER_ERROR } from '../utils/responseCodes';
+import {
+  HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+  HTTP_STATUS_CONFLICT,
+} from '../utils/responseCodes';
 
 export interface IError extends Error {
     statusCode: number
     errText: string
+    code: number
   }
 
 const errorHandler = (err: IError) => {
@@ -21,6 +26,9 @@ const errorHandler = (err: IError) => {
   } else if (err instanceof mongoose.Error.ValidationError) {
     statusCode = HTTP_STATUS_BAD_REQUEST;
     message = 'Данные не соответствуют схеме';
+  } else if (err.code === 11000) {
+    statusCode = HTTP_STATUS_CONFLICT;
+    message = 'Такой пользователь уже существует';
   }
 
   return { statusCode, message };

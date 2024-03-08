@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { HTTP_STATUS_CREATED } from '../utils/responseCodes';
 import User from '../models/user';
+import { IAuthRequest } from './cards';
 
 type TFields ={
   avatar?: string;
@@ -8,9 +11,8 @@ type TFields ={
   about?: string
 }
 
-function userDecorator(req:Request, res: Response, next: NextFunction) {
-  // @ts-ignore
-  const { _id } = req.user;
+function userDecorator(req:IAuthRequest, res: Response, next: NextFunction) {
+  const _id = req.user?._id;
 
   return function updateInfo(fields: TFields) {
     return User.findByIdAndUpdate(
@@ -34,10 +36,16 @@ export const updateProfile = (req:Request, res: Response, next: NextFunction) =>
   return userDecorator(req, res, next)({ name, about });
 };
 
-export const createUser = (req:Request, res: Response, next: NextFunction) => {
-  const { name, about, avatar } = req.body;
+export const createUser = async (req:Request, res: Response, next: NextFunction) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  return User.create({ name, about, avatar })
+  const hash = await bcrypt.hash(password, 10);
+
+  return User.create({
+    name, about, avatar, email, password: hash,
+  })
     .then((user) => res.status(HTTP_STATUS_CREATED).send({ data: user }))
     .catch(next);
 };
@@ -52,5 +60,25 @@ export const getUserById = (req:Request, res: Response, next: NextFunction) => {
   User.findById(userId)
     .orFail()
     .then((user) => res.send(user))
+    .catch(next);
+};
+
+export const login = (req:Request, res: Response, next: NextFunction) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch(next);
+};
+
+export const getMyInfo = (req:IAuthRequest, res: Response, next: NextFunction) => {
+  const _id = req.user?._id;
+
+  return User.findById(_id).then((user) => {
+    res.send({ user });
+  })
     .catch(next);
 };
