@@ -15,7 +15,7 @@ export interface IError extends Error {
 const errorHandler = (err: IError) => {
   let statusCode = HTTP_STATUS_INTERNAL_SERVER_ERROR;
 
-  let { message } = err;
+  let { message = 'На сервере произошла ошибка' } = err;
 
   if (err instanceof mongoose.Error.DocumentNotFoundError) {
     statusCode = HTTP_STATUS_NOT_FOUND;

@@ -1,6 +1,7 @@
 import mongoose, { Model, Document } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
+import linkValidator from '../utils/validators';
 
 export interface IUser {
   name: string,
@@ -32,10 +33,7 @@ const userSchema = new mongoose.Schema<IUser>({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator: (url: string) => {
-        const regex = /^(https?):\/\/[^\s/$.?#].[^\s]*$/;
-        return regex.test(url);
-      },
+      validator: linkValidator,
       message: 'Неправильный формат ссылки',
     },
   },

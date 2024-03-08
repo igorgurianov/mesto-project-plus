@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { SECRET_KEY } from '../config';
 import { HTTP_STATUS_CREATED } from '../utils/responseCodes';
 import User from '../models/user';
 import { IAuthRequest } from './cards';
@@ -68,7 +69,7 @@ export const login = (req:Request, res: Response, next: NextFunction) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
       res.send({ token });
     })
     .catch(next);

@@ -1,4 +1,5 @@
 import mongoose, { ObjectId } from 'mongoose';
+import linkValidator from '../utils/validators';
 
 export interface ICard {
   name: string,
@@ -18,6 +19,10 @@ const cardSchema = new mongoose.Schema<ICard>({
   link: {
     type: String,
     requred: true,
+    validate: {
+      validator: linkValidator,
+      message: 'Неверный формат ссылки',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

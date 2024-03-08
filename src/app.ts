@@ -3,19 +3,19 @@ import express, {
 } from 'express';
 import mongoose from 'mongoose';
 
+import { PORT, ADDRESS, DATA_BASE } from './config';
 import errorHandler, { IError } from './errors';
 import router from './routes';
 import { HTTP_STATUS_NOT_FOUND } from './utils/responseCodes';
 import celebrateErrorHandler from './errors/celebrate-err';
 import { requestLogger, errorLogger } from './middlewares/logger';
 
-const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
+mongoose.connect(`${ADDRESS}/${DATA_BASE}`);
 
 // Логер запросов
 app.use(requestLogger);

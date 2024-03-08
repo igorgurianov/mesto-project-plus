@@ -2,7 +2,7 @@ import { celebrate, Joi } from 'celebrate';
 
 export const userIdSchema = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24).required(),
+    userId: Joi.string().length(24).hex().required(),
   }),
 });
 

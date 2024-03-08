@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { SECRET_KEY } from '../config';
 
 export interface ISessionRequest extends Request {
   user?: string | JwtPayload
@@ -18,7 +19,7 @@ export default (req: ISessionRequest, res: Response, next: NextFunction) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, 'super-strong-secret');
+    payload = jwt.verify(token, SECRET_KEY);
   } catch {
     res.status(401).send({ message: 'Необходима авторизация' });
   }
