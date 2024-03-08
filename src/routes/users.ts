@@ -1,25 +1,17 @@
 import { Router } from 'express';
 import {
-  userIdSchema, userAllDataSchema, userNameAboutSchema, userAvatarSchema,
+  userIdSchema, userNameAboutSchema, userAvatarSchema,
 } from '../utils/celebrate-schemas/user';
 import {
-  createUser, getAllUsers, getUserById, updateAvatar, updateProfile,
+  getAllUsers, getUserById, updateAvatar, updateProfile, getMyInfo,
 } from '../controllers/users';
 
 const router = Router();
 
 router.get('/', getAllUsers);
-
-router.get('/:userId', userIdSchema, getUserById);
-
-router.post(
-  '/',
-  userAllDataSchema,
-  createUser,
-);
-
+router.get('/me', getMyInfo);
 router.patch('/me', userNameAboutSchema, updateProfile);
-
 router.patch('/me/avatar', userAvatarSchema, updateAvatar);
+router.get('/:userId', userIdSchema, getUserById);
 
 export default router;

@@ -3,6 +3,12 @@ import { QueryOptions, UpdateQuery } from 'mongoose';
 import { HTTP_STATUS_CREATED } from '../utils/responseCodes';
 import Card from '../models/card';
 
+export interface IAuthRequest extends Request {
+  user?: {
+    _id: string
+  }
+}
+
 const cardDecorator = (req:Request, res: Response, next: NextFunction) => {
   const _id = req.params.cardId;
 
@@ -16,15 +22,13 @@ const cardDecorator = (req:Request, res: Response, next: NextFunction) => {
 };
 
 const cardController = {
-  putLike: (req:Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
-    const owner = req.user._id;
+  putLike: (req:IAuthRequest, res: Response, next: NextFunction) => {
+    const owner = req.user?._id;
     return cardDecorator(req, res, next)({ $addToSet: { likes: owner } }, { new: true });
   },
 
-  deleteLike: (req:Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
-    const owner = req.user._id;
+  deleteLike: (req:IAuthRequest, res: Response, next: NextFunction) => {
+    const owner = req.user?._id;
     return cardDecorator(req, res, next)({ $pull: { likes: owner } }, { new: true });
   },
 
@@ -33,10 +37,9 @@ const cardController = {
     .then((card) => res.send({ data: card }))
     .catch(next),
 
-  postCard: (req:Request, res: Response, next: NextFunction) => {
+  postCard: (req:IAuthRequest, res: Response, next: NextFunction) => {
     const { name, link } = req.body;
-    // @ts-ignore
-    const owner = req.user._id;
+    const owner = req.user?._id;
 
     return Card.create({ name, owner, link })
       .then((card) => card.populate('owner'))
@@ -44,12 +47,18 @@ const cardController = {
       .catch(next);
   },
 
-  deleteCard: (req:Request, res: Response, next: NextFunction) => {
+  deleteCard: async (req:IAuthRequest, res: Response, next: NextFunction) => {
     const _id = req.params.cardId;
+    const userId = req.user?._id;
+    const card = await Card.findById(_id).orFail();
 
-    return Card.findByIdAndDelete(_id)
+    if (userId !== String(card.owner)) {
+      return next(new Error('Можно удалять только свои карточки'));
+    }
+
+    return Card.findOneAndDelete({ _id })
       .orFail()
-      .then((card) => res.send({ data: card }))
+      .then((resCard) => res.send({ data: resCard }))
       .catch(next);
   },
 
